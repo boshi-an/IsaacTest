@@ -35,6 +35,11 @@ from typing import Callable
 
 from tasks import isaacgym_task_map
 
+def get_rlgame_runner(
+    algo_config: dict,
+    
+)
+
 
 def get_rlgames_env_creator(
         # used to create the vec task

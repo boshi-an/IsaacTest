@@ -15,6 +15,8 @@ from rl_games.torch_runner import Runner
 
 import yaml
 
+import runner
+
 
 ## OmegaConf & Hydra Config
 
@@ -52,33 +54,7 @@ def launch_hydra(cfg: DictConfig) :
 		multi_gpu=cfg.multi_gpu
 	)
 
-	# register the rl-games adapter to use inside the runner
-	vecenv.register('RLGPU',
-					lambda config_name, num_actors, **kwargs: RLGPUEnv(config_name, num_actors, **kwargs))
-	env_configurations.register('rlgpu', {
-		'vecenv_type': 'RLGPU',
-		'env_creator': lambda **kwargs: create_rlgpu_env(**kwargs),
-	})
-
-	rlg_config_dict = omegaconf_to_dict(cfg.train)
-
-	# convert CLI arguments into dictionory
-	# create runner and set the settings
-	runner = Runner(RLGPUAlgoObserver())
-	runner.load(rlg_config_dict)
-	runner.reset()
-
-	# dump config dict
-	experiment_dir = os.path.join('runs', cfg.train.params.config.name)
-	os.makedirs(experiment_dir, exist_ok=True)
-	with open(os.path.join(experiment_dir, 'config.yaml'), 'w') as f:
-		f.write(OmegaConf.to_yaml(cfg))
-
-	runner.run({
-		'train': not cfg.test,
-		'play': cfg.test,
-	})
-
+	env = create_rlgpu_env()
 
 if __name__ == "__main__" :
 	launch_hydra()
